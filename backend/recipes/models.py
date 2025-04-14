@@ -37,7 +37,8 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Изображение',
-        upload_to= 'images/recipes'
+        upload_to= 'recipes/images', 
+        blank=True
     )
     description = models.TextField(
         verbose_name='Описание'
@@ -137,3 +138,4 @@ class ShoppingList(models.Model):
 
     def __str__(self):
         return f'{self.user} {self.recipe}'
+    

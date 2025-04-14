@@ -2,7 +2,7 @@
 from rest_framework import viewsets 
 from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer
+from .serializers import *
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -12,12 +12,35 @@ from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from users.models import Subscribtion
-
+from recipes.models import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from .pagination import RecipePagination
 User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer = UserSerializer()
     pagination_class = LimitOffsetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend, 
+                       filters.SearchFilter,
+                    )
+    filterset_fields = ('name',)
+    search_fields = ('^name',) 
+
+
+class RecipesViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = [AllowAny]
+    pagination_class = RecipePagination
 
     

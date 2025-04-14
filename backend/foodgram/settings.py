@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters', 
     'djoser',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
@@ -143,7 +145,7 @@ REST_FRAMEWORK = {
     ], 
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 6,
 } 
 
 SIMPLE_JWT = {
@@ -154,7 +156,7 @@ SIMPLE_JWT = {
 
 DJOSER = {
     "SERIALIZERS": {
-        "user_create": "api.serializers.UserCreateSerializer",
+        "user_create": "api.serializers.CreateUserSerializer",
         "user": "api.serializers.UserSerializer",
         # "user_create_password_retype": "account.serializers.user_serializer.UserCreatePasswordRetypeSerializer",
     },
@@ -165,4 +167,9 @@ DJOSER = {
     'user_list': ['rest_framework.permissions.AllowAny'],
 
     },
+
+    "SET_PASSWORD_RETYPE" : True
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
