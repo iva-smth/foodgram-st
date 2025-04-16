@@ -3,10 +3,10 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Favourite, Shop
 from users.models import Subscribtion
 from rest_framework import serializers
 from rest_framework.fields import IntegerField, SerializerMethodField
-from djoser.serializers import UserSerializer as DjoserUserSerializer, UserCreateSerializer as DjoserCreateUserSerializer
+from djoser.serializers import UserSerializer, UserCreateSerializer
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-import base64  # Модуль с функциями кодирования и декодирования base64
+import base64 
 
 from django.core.files.base import ContentFile
 
@@ -14,23 +14,16 @@ User = get_user_model()
 
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
-        # Если полученный объект строка, и эта строка 
-        # начинается с 'data:image'...
         if isinstance(data, str) and data.startswith('data:image'):
-            # ...начинаем декодировать изображение из base64.
-            # Сначала нужно разделить строку на части.
             format, imgstr = data.split(';base64,')  
-            # И извлечь расширение файла.
             ext = format.split('/')[-1]  
-            # Затем декодировать сами данные и поместить результат в файл,
-            # которому дать название по шаблону.
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
         return super().to_internal_value(data)
 
-class UserSerializer(DjoserUserSerializer):
+class UserSerializer(UserSerializer):
     is_subscribed = SerializerMethodField(read_only=True)
-    avatar = Base64ImageField(required=False, allow_null=True)
+    avatar = Base64ImageField(required=False)
 
     class Meta:
         model = User
@@ -50,14 +43,8 @@ class UserSerializer(DjoserUserSerializer):
             return False
         return Subscribtion.objects.filter(creator=creator, subscriber=request.user).exists()
     
-    def update(self, instance, validated_data):
-        instance.avatar = validated_data.get('avatar', instance.avatar)
-        
-        instance.save()
-        return instance 
 
-
-class CreateUserSerializer(DjoserCreateUserSerializer):
+class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователя
     без проверки на подписку """
 

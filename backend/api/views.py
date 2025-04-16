@@ -8,14 +8,15 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 )
-from rest_framework.pagination import LimitOffsetPagination
+
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from users.models import Subscribtion
 from recipes.models import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from .pagination import RecipePagination
+from .pagination import CustomPagination
+from rest_framework.pagination import LimitOffsetPagination
 User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
@@ -24,7 +25,7 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-
+    
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer

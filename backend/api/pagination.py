@@ -1,6 +1,7 @@
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import pagination
 
-
-class RecipePagination(PageNumberPagination):
-    page_size_query_param = 'limit'
-    page_size = 6
+class CustomPagination(pagination.PageNumberPagination):
+    default_limit = 6
+    limit_query_param = 'limit'
+    # offset_query_param = 'offset'
+    # max_limit = 50
