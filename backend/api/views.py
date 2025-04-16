@@ -21,11 +21,42 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer = UserSerializer()
+    serializer = UserSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
+    @action(detail=False, methods=['get'], 
+            permission_classes=[IsAuthenticated])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
     
+    @action(detail=False, methods=['put', 'delete'], url_path='me/avatar', permission_classes=[IsAuthenticated])
+    def manage_avatar(self, request):
+        user = request.user  
+
+        if request.method == 'PUT':
+            serializer = self.get_serializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
+                return Response(
+                    {"avatar": avatar_url},
+                    status=status.HTTP_200_OK
+                )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'DELETE':
+            if user.avatar:
+                user.avatar.delete(save=True) 
+                user.avatar = None
+                user.save()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"error": "No avatar to remove."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer

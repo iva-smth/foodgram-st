@@ -45,12 +45,7 @@ class UserSerializer(UserSerializer):
     
 
 class CreateUserSerializer(UserCreateSerializer):
-    """Сериализатор для создания пользователя
-    без проверки на подписку """
-
     class Meta:
-        """Мета-параметры сериализатора"""
-
         model = User
         fields = (
             'email', 
@@ -61,6 +56,7 @@ class CreateUserSerializer(UserCreateSerializer):
             'password'
         )
         extra_kwargs = {'password': {'write_only': True}}
+
 
 
 class IngredientSerializer(serializers.ModelSerializer):
