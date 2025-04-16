@@ -37,10 +37,9 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Изображение',
-        upload_to= 'recipes/images', 
-        blank=True
+        upload_to= 'recipes/images'
     )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание'
     )
     ingredients = models.ManyToManyField(
@@ -138,4 +137,3 @@ class ShoppingList(models.Model):
 
     def __str__(self):
         return f'{self.user} {self.recipe}'
-    

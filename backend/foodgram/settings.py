@@ -137,39 +137,41 @@ AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', 
+        'rest_framework.permissions.AllowAny', 
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ], 
-
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
 } 
 
-SIMPLE_JWT = {
-    # Устанавливаем срок жизни токена
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-   'AUTH_HEADER_TYPES': ('Bearer',),
-} 
+# SIMPLE_JWT = {
+#     # Устанавливаем срок жизни токена
+#    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#    'AUTH_HEADER_TYPES': ('Bearer',),
+# } 
 
 DJOSER = {
+    'LOGIN_FIELD': 'email',
     "SERIALIZERS": {
         "user_create": "api.serializers.CreateUserSerializer",
         "user": "api.serializers.UserSerializer",
-        # "user_create_password_retype": "account.serializers.user_serializer.UserCreatePasswordRetypeSerializer",
+        'current_user': 'api.serializers.UserSerializer',
+
     },
     "HIDE_USERS" : False,
     'PERMISSIONS': {
-
-    'user': ['rest_framework.permissions.AllowAny'],
-    'user_list': ['rest_framework.permissions.AllowAny'],
-
+        'user': ['rest_framework.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     },
-
-    "SET_PASSWORD_RETYPE" : True
 }
+
+AUTHENTICATION_BACKENDS= (
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

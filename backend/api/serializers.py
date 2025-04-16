@@ -3,7 +3,7 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Favourite, Shop
 from users.models import Subscribtion
 from rest_framework import serializers
 from rest_framework.fields import IntegerField, SerializerMethodField
-from djoser.serializers import UserSerializer
+from djoser.serializers import UserSerializer as DjoserUserSerializer, UserCreateSerializer as DjoserCreateUserSerializer
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 import base64  # Модуль с функциями кодирования и декодирования base64
@@ -28,7 +28,7 @@ class Base64ImageField(serializers.ImageField):
 
         return super().to_internal_value(data)
 
-class UserSerializer(UserSerializer):
+class UserSerializer(DjoserUserSerializer):
     is_subscribed = SerializerMethodField(read_only=True)
     avatar = Base64ImageField(required=False, allow_null=True)
 
@@ -57,7 +57,7 @@ class UserSerializer(UserSerializer):
         return instance 
 
 
-class CreateUserSerializer(UserSerializer):
+class CreateUserSerializer(DjoserCreateUserSerializer):
     """Сериализатор для создания пользователя
     без проверки на подписку """
 
@@ -95,7 +95,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer()
-    ingredients = RecipeIngredientSerializer()
+    ingredients = RecipeIngredientSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -105,7 +105,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id',
             'author',
             'ingredients',
-            'is_favourited',
+            'is_favorited',
             'is_in_shopping_cart',
             'name',
             'image',
@@ -113,14 +113,39 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-    def get_is_favourite(self, recipe):
+    def get_is_favorited(self, recipe):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
         return Favourite.objects.filter(user=request.user, recipe=recipe).exists()
     
-    def get_is_in_shopping_list(self, recipe):
+    def get_is_in_shopping_cart(self, recipe):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
         return ShoppingList.objects.filter(user=request.user, recipe=recipe).exists()
+    
+
+class FavouriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
+class ShoppingListSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingList
+
+
+    
+class SubscribtionSerializer(serializers.ModelSerializer):
+    class Mets:
+        model = User
+        fields= (
+            'email'
+        )

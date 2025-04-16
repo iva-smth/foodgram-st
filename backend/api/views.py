@@ -40,7 +40,19 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = [AllowAny]
-    pagination_class = RecipePagination
-
+    permission_classes = []
     
+    def get_serializer_class(self):
+        """Метод для вызова определенного сериализатора. """
+
+        if self.action in ('list', 'retrieve'):
+            return RecipeSerializer
+        elif self.action in ('create', 'partial_update'):
+            return 
+
+    def get_serializer_context(self):
+        """Метод для передачи контекста. """
+
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context

@@ -1,12 +1,17 @@
 # users/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.core.validators import RegexValidator
 
 class User(AbstractUser):
     first_name = models.CharField(max_length = 150, verbose_name = 'Имя')
     last_name = models.CharField(max_length = 150, verbose_name = 'Фамилия')
-    username = models.CharField(max_length = 150, verbose_name = 'Логин', unique = True)
+    username = models.CharField(max_length = 150, verbose_name = 'Логин', unique = True, validators=[
+            RegexValidator(
+                regex='^[\w.@+-]+$',
+                message='Username is not valid',
+            ),
+        ])
     email = models.EmailField(max_length = 254, verbose_name = 'Электроная почта', unique = True)
     avatar = models.ImageField(
         verbose_name='Аватар',
